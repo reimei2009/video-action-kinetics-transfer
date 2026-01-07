@@ -7,9 +7,9 @@ import torch
 import torch.nn as nn
 
 
-def create_x3d_model(
-    model_name='x3d_xs',
+def build_x3d(
     num_classes=10,
+    model_name='x3d_xs',
     pretrained=True,
     freeze_backbone=False
 ):
@@ -17,8 +17,8 @@ def create_x3d_model(
     Tạo X3D model với số lớp tùy chỉnh
     
     Args:
-        model_name: 'x3d_xs', 'x3d_s', 'x3d_m'
         num_classes: số lớp output
+        model_name: 'x3d_xs', 'x3d_s', 'x3d_m'
         pretrained: load pretrained weights từ Kinetics-400
         freeze_backbone: freeze các layer backbone (chỉ train classifier)
     
@@ -54,6 +54,18 @@ def create_x3d_model(
     return model
 
 
+def create_x3d_model(
+    model_name='x3d_xs',
+    num_classes=10,
+    pretrained=True,
+    freeze_backbone=False
+):
+    """
+    Alias for build_x3d (backward compatibility)
+    """
+    return build_x3d(num_classes, model_name, pretrained, freeze_backbone)
+
+
 def create_r3d_model(num_classes=10, pretrained=True):
     """
     Tạo R3D-18 model (alternative cho X3D)
@@ -82,7 +94,7 @@ def create_r3d_model(num_classes=10, pretrained=True):
 
 if __name__ == '__main__':
     # Test model creation
-    model = create_x3d_model(num_classes=10, pretrained=False)
+    model = build_x3d(num_classes=10, pretrained=False)
     print(f"Model created: {model.__class__.__name__}")
     print(f"Output classes: 10")
     
