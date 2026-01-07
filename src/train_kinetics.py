@@ -16,12 +16,10 @@ import sys
 import os
 
 # Add src directory to Python path (for Kaggle import)
-script_dir = Path(__file__).parent.absolute()
-project_root = script_dir.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-if str(script_dir) not in sys.path:
-    sys.path.insert(0, str(script_dir))
+# train_kinetics.py is in src/, so __file__.parent is src/
+src_dir = Path(__file__).parent.absolute()
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
 
 from datasets.kinetics_subset import KineticsSubsetDataset, get_kinetics_transforms
 from models.x3d_wrapper import build_x3d
