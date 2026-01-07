@@ -7,16 +7,16 @@ dataset_root: "/kaggle/input/kinetics-train-5per/kinetics400_5per/kinetics400_5p
 data_root: "/kaggle/input/kinetics-train-5per/kinetics400_5per/kinetics400_5per"
 
 selected_classes:
-  - "playing_guitar"
-  - "playing_violin"
+  - "playing guitar"
+  - "playing violin"
   - "cooking"
-  - "playing_basketball"
-  - "bench_pressing"
-  - "doing_aerobics"
-  - "playing_piano"
-  - "skipping_rope"
-  - "dribbling_basketball"
-  - "washing_dishes"
+  - "playing basketball"
+  - "bench pressing"
+  - "doing aerobics"
+  - "playing piano"
+  - "skipping rope"
+  - "dribbling basketball"
+  - "washing dishes"
 
 # Video settings
 num_frames: 16        # Số frame per clip
