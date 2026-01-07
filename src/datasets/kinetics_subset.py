@@ -53,24 +53,42 @@ class KineticsSubsetDataset(Dataset):
         # Scan video files
         self.samples = self._scan_videos()
         
+        if len(self.samples) == 0:
+            print(f"\n⚠ WARNING: No videos found!")
+            print(f"  Data root: {self.data_root}")
+            print(f"  Split: {self.split}")
+            print(f"  Split path: {os.path.join(self.data_root, self.split)}")
+            print(f"  Path exists: {os.path.exists(self.data_root)}")
+            if os.path.exists(self.data_root):
+                print(f"  Contents: {os.listdir(self.data_root)[:10]}")
+        
     def _scan_videos(self):
         """Quét tất cả video trong data_root/split/<class>/<video>.mp4"""
         samples = []
         split_path = os.path.join(self.data_root, self.split)
         
+        if not os.path.exists(split_path):
+            print(f"⚠ Split path not found: {split_path}")
+            # Try without split subdirectory
+            split_path = self.data_root
+            print(f"  Trying root path: {split_path}")
+        
         for class_name in self.selected_classes:
             class_path = os.path.join(split_path, class_name)
             if not os.path.exists(class_path):
+                print(f"⚠ Class path not found: {class_path}")
                 continue
                 
-            for video_name in os.listdir(class_path):
-                if video_name.endswith(('.mp4', '.avi', '.mkv')):
-                    video_path = os.path.join(class_path, video_name)
-                    samples.append({
-                        'path': video_path,
-                        'label': self.class_to_idx[class_name],
-                        'class': class_name
-                    })
+            video_files = [f for f in os.listdir(class_path) if f.endswith(('.mp4', '.avi', '.mkv'))]
+            print(f"  {class_name}: found {len(video_files)} videos")
+            
+            for video_name in video_files:
+                video_path = os.path.join(class_path, video_name)
+                samples.append({
+                    'path': video_path,
+                    'label': self.class_to_idx[class_name],
+                    'class': class_name
+                })
         
         return samples
     

@@ -167,9 +167,20 @@ def main(config_path):
     # Debug mode - limit samples
     if config.get('debug_mode', False):
         max_samples = config.get('max_debug_samples', 50)
-        train_dataset.samples = train_dataset.samples[:max_samples]
-        val_dataset.samples = val_dataset.samples[:min(max_samples//5, len(val_dataset.samples))]
+        if len(train_dataset.samples) > 0:
+            train_dataset.samples = train_dataset.samples[:max_samples]
+        if len(val_dataset.samples) > 0:
+            val_dataset.samples = val_dataset.samples[:min(max_samples//5, len(val_dataset.samples))]
         print(f"⚠ DEBUG MODE: Limited to {len(train_dataset)} train, {len(val_dataset)} val samples\n")
+    
+    # Check if dataset is empty
+    if len(train_dataset) == 0:
+        print("\n❌ ERROR: Training dataset is empty!")
+        print("Please check:")
+        print("  1. Dataset path is correct")
+        print("  2. Video files exist in train/<class>/ folders")
+        print("  3. Selected classes match actual folder names\n")
+        return
     
     print(f"✓ Train samples: {len(train_dataset)}")
     print(f"✓ Val samples: {len(val_dataset)}")
