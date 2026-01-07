@@ -1,6 +1,8 @@
 """
 Training script cho Kinetics Subset
 Chạy trên Kaggle Notebook để pretrain/fine-tune trên Kinetics 5%
+
+Run: python src/train_kinetics.py --config configs/kinetics_subset.yaml
 """
 
 import argparse
@@ -13,13 +15,11 @@ from torch.cuda.amp import autocast, GradScaler
 from tqdm import tqdm
 from pathlib import Path
 import sys
-import os
 
-# Add src directory to Python path (for Kaggle import)
-# train_kinetics.py is in src/, so __file__.parent is src/
-src_dir = Path(__file__).parent.absolute()
-if str(src_dir) not in sys.path:
-    sys.path.insert(0, str(src_dir))
+# Fix imports for when script is run as: python src/train_kinetics.py
+# This adds the src/ directory to Python path so we can import datasets.* and models.*
+src_dir = Path(__file__).parent.resolve()
+sys.path.insert(0, str(src_dir))
 
 from datasets.kinetics_subset import KineticsSubsetDataset, get_kinetics_transforms
 from models.x3d_wrapper import build_x3d
