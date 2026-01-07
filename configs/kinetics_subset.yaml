@@ -2,41 +2,45 @@
 # Sử dụng trên Kaggle Notebook
 
 # Dataset settings
-data_root: '/kaggle/input/kinetics-dataset/train'  # Điều chỉnh theo Kaggle dataset
+dataset_root: "/kaggle/input/kinetics-train-5per"  # Đường dẫn dataset trên Kaggle
+data_root: "/kaggle/input/kinetics-train-5per"     # Alias cho compatibility
+
 selected_classes:
-  - 'abseiling'
-  - 'basketball'
-  - 'climbing'
-  - 'dancing'
-  - 'playing_guitar'
-  - 'running'
-  - 'swimming'
-  - 'tennis'
-  - 'volleyball'
-  - 'walking'
+  - "playing_guitar"
+  - "playing_violin"
+  - "cooking"
+  - "playing_basketball"
+  - "bench_pressing"
+  - "doing_aerobics"
+  - "playing_piano"
+  - "skipping_rope"
+  - "dribbling_basketball"
+  - "washing_dishes"
 
 # Video settings
-clip_duration: 2.0  # giây
-num_frames: 16      # số frame per clip
-crop_size: 224      # spatial crop size
+num_frames: 16        # Số frame per clip
+frame_rate: 5         # Frame sampling rate
+clip_duration: 2.0    # Giây (tính từ num_frames/frame_rate)
+crop_size: 224        # Spatial crop size (224 cho X3D)
 
 # Model settings
-model_name: 'x3d_xs'  # x3d_xs, x3d_s, x3d_m
-pretrained: true      # load pretrained từ Kinetics-400
-freeze_backbone: false  # false = fine-tune toàn bộ
+model_name: "x3d_xs"     # x3d_xs (nhẹ nhất), x3d_s, x3d_m
+pretrained: true         # Load pretrained từ Kinetics-400
+freeze_backbone: false   # false = fine-tune toàn bộ model
 
 # Training settings
 batch_size: 8
-learning_rate: 0.001
-weight_decay: 0.0001
-epochs: 20
+learning_rate: 0.0001    # 1e-4 cho fine-tuning
+weight_decay: 0.0001     # 1e-4 regularization
+max_epochs: 10           # Số epochs (Kaggle có thời gian giới hạn)
 
 # Scheduler
-scheduler_step: 10
-scheduler_gamma: 0.1
+scheduler_step: 5        # Giảm LR sau mỗi 5 epochs
+scheduler_gamma: 0.1     # Giảm LR xuống 0.1x
 
 # DataLoader
-num_workers: 2
+num_workers: 4           # Kaggle có multi-core
 
 # Output
-save_dir: '/kaggle/working/weights'  # Kaggle output directory
+output_dir: "/kaggle/working/kinetics_subset"
+save_dir: "/kaggle/working/kinetics_subset"  # Nơi lưu weights
