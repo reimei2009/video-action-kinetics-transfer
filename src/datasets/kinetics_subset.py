@@ -6,12 +6,8 @@ Sử dụng cho pretrain/fine-tune trên Kinetics 5% (Kaggle)
 import os
 import torch
 from torch.utils.data import Dataset
-from torchvision.transforms import Compose
+import torchvision.transforms as transforms
 from pytorchvideo.data.encoded_video import EncodedVideo
-from pytorchvideo.transforms import (
-    UniformTemporalSubsample,
-    Normalize,
-)
 import json
 
 
@@ -107,18 +103,46 @@ class KineticsSubsetDataset(Dataset):
 def get_kinetics_transforms(num_frames=16, crop_size=224, mean=[0.45, 0.45, 0.45], std=[0.225, 0.225, 0.225]):
     """
     Transform chuẩn cho Kinetics dataset
+    Compatible với torchvision (không dùng pytorchvideo transforms)
     """
-    from torchvision.transforms import Compose
-    from pytorchvideo.transforms import (
-        UniformTemporalSubsample,
-        ShortSideScale,
-        CenterCrop,
-        Normalize,
-    )
+    import torchvision.transforms as T
     
-    return Compose([
-        UniformTemporalSubsample(num_frames),
-        ShortSideScale(size=256),
-        CenterCrop(crop_size),
-        Normalize(mean=mean, std=std),
+    # Simple transform pipeline using only torchvision
+    # Video tensor shape: (C, T, H, W) or (T, C, H, W)
+    return T.Compose([
+        # Input sẽ là (C, T, H, W) từ EncodedVideo
+        # Chuyển về (T, C, H, W) để dễ xử lý
+        T.Lambda(lambda x: x.permute(1, 0, 2, 3)),  # (C,T,H,W) -> (T,C,H,W)
+        
+        # Temporal subsample: lấy num_frames frames đều đặn
+        T.Lambda(lambda x: temporal_subsample(x, num_frames)),
+        
+        # Spatial transforms (áp dụng cho từng frame)
+        T.Lambda(lambda x: torch.stack([
+            T.Compose([
+                T.Resize(256),
+                T.CenterCrop(crop_size),
+                T.Normalize(mean=mean, std=std)
+            ])(frame) for frame in x
+        ])),
+        
+        # Chuyển về (C, T, H, W) cho model
+        T.Lambda(lambda x: x.permute(1, 0, 2, 3)),  # (T,C,H,W) -> (C,T,H,W)
     ])
+
+
+def temporal_subsample(video_tensor, num_frames):
+    """
+    Uniformly subsample num_frames from video_tensor
+    video_tensor shape: (T, C, H, W)
+    """
+    total_frames = video_tensor.shape[0]
+    if total_frames <= num_frames:
+        # Pad if not enough frames
+        pad_size = num_frames - total_frames
+        padding = video_tensor[-1:].repeat(pad_size, 1, 1, 1)
+        return torch.cat([video_tensor, padding], dim=0)
+    
+    # Uniform sampling
+    indices = torch.linspace(0, total_frames - 1, num_frames).long()
+    return video_tensor[indices]
