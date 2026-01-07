@@ -2,8 +2,9 @@
 # Sử dụng trên Kaggle Notebook
 
 # Dataset settings
-dataset_root: "/kaggle/input/kinetics-train-5per"  # Đường dẫn dataset trên Kaggle
-data_root: "/kaggle/input/kinetics-train-5per"     # Alias cho compatibility
+# Path structure: /kaggle/input/kinetics-train-5per/kinetics400_5per/kinetics400_5per/train/<class>/<video>.mp4
+dataset_root: "/kaggle/input/kinetics-train-5per/kinetics400_5per/kinetics400_5per"
+data_root: "/kaggle/input/kinetics-train-5per/kinetics400_5per/kinetics400_5per"
 
 selected_classes:
   - "playing_guitar"
@@ -34,6 +35,14 @@ learning_rate: 0.0001    # 1e-4 cho fine-tuning
 weight_decay: 0.0001     # 1e-4 regularization
 max_epochs: 10           # Số epochs (Kaggle có thời gian giới hạn)
 
+# Debug mode
+debug_mode: false        # true = chỉ train với ít samples để test
+max_debug_samples: 50    # Số samples khi debug_mode=true
+
+# Mixed Precision Training
+use_amp: true           # Automatic Mixed Precision - nhanh hơn, ít RAM hơn
+gradient_clip: 1.0      # Clip gradients để tránh exploding
+
 # Scheduler
 scheduler_step: 5        # Giảm LR sau mỗi 5 epochs
 scheduler_gamma: 0.1     # Giảm LR xuống 0.1x
@@ -43,4 +52,6 @@ num_workers: 4           # Kaggle có multi-core
 
 # Output
 output_dir: "/kaggle/working/kinetics_subset"
-save_dir: "/kaggle/working/kinetics_subset"  # Nơi lưu weights
+save_dir: "/kaggle/working/kinetics_subset"
+checkpoint_freq: 1       # Lưu checkpoint mỗi N epochs
+log_freq: 10            # Print log mỗi N batches
