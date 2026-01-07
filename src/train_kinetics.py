@@ -90,6 +90,10 @@ def evaluate(model, dataloader, criterion, device):
     correct = 0
     total = 0
     
+    # Handle empty dataloader
+    if len(dataloader) == 0:
+        return 0.0, 0.0
+    
     with torch.no_grad():
         for videos, labels in tqdm(dataloader, desc='Validating'):
             videos = videos.to(device)
@@ -104,7 +108,7 @@ def evaluate(model, dataloader, criterion, device):
             correct += (predicted == labels).sum().item()
     
     val_loss = running_loss / len(dataloader)
-    val_acc = 100. * correct / total
+    val_acc = 100. * correct / total if total > 0 else 0.0
     return val_loss, val_acc
 
 
@@ -249,7 +253,10 @@ def main(config_path):
         
         # Validate
         val_loss, val_acc = evaluate(model, val_loader, criterion, device)
-        print(f"Val   → Loss: {val_loss:.4f}, Acc: {val_acc:.2f}%")
+        if len(val_loader) > 0:
+            print(f"Val   → Loss: {val_loss:.4f}, Acc: {val_acc:.2f}%")
+        else:
+            print(f"Val   → Skipped (no validation data)")
         
         # Save best model
         if val_acc > best_val_acc:
