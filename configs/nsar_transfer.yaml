@@ -1,0 +1,36 @@
+# Config cho NSARPMD Transfer Learning
+# Sử dụng trên Kaggle/Colab để transfer từ Kinetics
+
+# Dataset settings
+data_root: '/kaggle/input/nsarpmd/videos'  # Điều chỉnh theo NSARPMD dataset
+train_annotation: null  # Optional: path to train.csv
+val_annotation: null    # Optional: path to val.csv
+
+# Video settings
+clip_duration: 2.0
+num_frames: 16
+crop_size: 224
+
+# Model settings
+model_name: 'x3d_xs'
+pretrained: false  # Không dùng pretrained, sẽ load từ Kinetics weights
+freeze_backbone: true  # true = chỉ train classifier (transfer learning)
+
+# Kinetics pretrained weights
+kinetics_weights: '/kaggle/input/kinetics-weights/x3d_kinetics_subset_best.pth'
+
+# Training settings
+batch_size: 4  # Nhỏ hơn vì NSARPMD có ít data
+learning_rate: 0.0001  # Learning rate thấp cho transfer learning
+weight_decay: 0.0001
+epochs: 30
+
+# Scheduler
+scheduler_step: 15
+scheduler_gamma: 0.1
+
+# DataLoader
+num_workers: 2
+
+# Output
+save_dir: '/kaggle/working/weights'

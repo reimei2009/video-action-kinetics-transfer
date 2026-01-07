@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Model weights (không commit weights lên GitHub)
+weights/*.pth
+weights/*.pt
+weights/*.ckpt
+
+# Data (không commit dataset lên GitHub)
+data/
+datasets/
+videos/
+*.mp4
+*.avi
+*.mkv
+
+# Logs
+logs/
+*.log
+tensorboard/
+runs/
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Kaggle/Colab
+/kaggle/
+/content/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

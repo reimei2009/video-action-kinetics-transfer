@@ -1,0 +1,25 @@
+# PyTorch - sử dụng CPU cho local, GPU trên Kaggle/Colab
+torch>=2.0.0
+torchvision>=0.15.0
+
+# PyTorchVideo - hỗ trợ 3D models (X3D, R3D) và video loading
+pytorchvideo
+
+# Video processing
+opencv-python>=4.8.0
+ffmpeg-python
+
+# Utilities
+tqdm
+pyyaml
+numpy
+pillow
+
+# Optional: Training utilities
+tensorboard
+matplotlib
+
+# Optional: Web API/Demo (sẽ dùng sau khi deploy)
+# fastapi
+# uvicorn
+# streamlit

@@ -1,0 +1,42 @@
+# Config cho Kinetics Subset Training
+# Sử dụng trên Kaggle Notebook
+
+# Dataset settings
+data_root: '/kaggle/input/kinetics-dataset/train'  # Điều chỉnh theo Kaggle dataset
+selected_classes:
+  - 'abseiling'
+  - 'basketball'
+  - 'climbing'
+  - 'dancing'
+  - 'playing_guitar'
+  - 'running'
+  - 'swimming'
+  - 'tennis'
+  - 'volleyball'
+  - 'walking'
+
+# Video settings
+clip_duration: 2.0  # giây
+num_frames: 16      # số frame per clip
+crop_size: 224      # spatial crop size
+
+# Model settings
+model_name: 'x3d_xs'  # x3d_xs, x3d_s, x3d_m
+pretrained: true      # load pretrained từ Kinetics-400
+freeze_backbone: false  # false = fine-tune toàn bộ
+
+# Training settings
+batch_size: 8
+learning_rate: 0.001
+weight_decay: 0.0001
+epochs: 20
+
+# Scheduler
+scheduler_step: 10
+scheduler_gamma: 0.1
+
+# DataLoader
+num_workers: 2
+
+# Output
+save_dir: '/kaggle/working/weights'  # Kaggle output directory

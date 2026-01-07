@@ -1,0 +1,21 @@
+# Docker Compose for Video Action Recognition
+
+version: '3.8'
+
+services:
+  action-recognition:
+    build: .
+    image: action-recognition:latest
+    container_name: video-action-recognition
+    volumes:
+      - ./videos:/app/videos
+      - ./weights:/app/weights
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      python src/inference.py
+      --video /app/videos/test.mp4
+      --model /app/weights/x3d_nsar_best.pth
+      --classes "basketball,soccer,tennis,volleyball,badminton,cricket,hockey,swimming"
+      --device cpu
+      --top_k 3
