@@ -44,7 +44,6 @@ weights/*.ckpt
 
 # Data (không commit dataset lên GitHub)
 data/
-datasets/
 videos/
 *.mp4
 *.avi
