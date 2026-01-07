@@ -4,6 +4,7 @@ Sử dụng cho pretrain/fine-tune trên Kinetics 5% (Kaggle)
 """
 
 import os
+import random
 import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
@@ -21,6 +22,8 @@ class KineticsSubsetDataset(Dataset):
         clip_duration: độ dài clip (giây)
         num_frames: số frame mỗi clip (16, 32...)
         split: 'train' hoặc 'val'
+        train_val_split: tỷ lệ train/val (default 0.8 = 80% train, 20% val)
+        random_seed: seed cho reproducibility
     """
     
     def __init__(
@@ -30,13 +33,17 @@ class KineticsSubsetDataset(Dataset):
         clip_duration=2.0,
         num_frames=16,
         split='train',
-        transform=None
+        transform=None,
+        train_val_split=0.8,
+        random_seed=42
     ):
         self.data_root = data_root
         self.clip_duration = clip_duration
         self.num_frames = num_frames
         self.split = split
         self.transform = transform
+        self.train_val_split = train_val_split
+        self.random_seed = random_seed
         
         # Nếu không chỉ định, chọn 10 classes phổ biến
         if selected_classes is None:
@@ -66,12 +73,18 @@ class KineticsSubsetDataset(Dataset):
         """Quét tất cả video trong data_root/split/<class>/<video>.mp4"""
         samples = []
         split_path = os.path.join(self.data_root, self.split)
+        use_auto_split = False
         
         if not os.path.exists(split_path):
-            print(f"⚠ Split path not found: {split_path}")
-            # Try without split subdirectory
-            split_path = self.data_root
-            print(f"  Trying root path: {split_path}")
+            # If val/ doesn't exist, use train/ and split automatically
+            if self.split == 'val':
+                split_path = os.path.join(self.data_root, 'train')
+                use_auto_split = True
+                print(f"⚠ Val split not found, will auto-split from train/ ({int((1-self.train_val_split)*100)}% for val)")
+            else:
+                print(f"⚠ Split path not found: {split_path}")
+                split_path = self.data_root
+                print(f"  Trying root path: {split_path}")
         
         for class_name in self.selected_classes:
             class_path = os.path.join(split_path, class_name)
@@ -80,6 +93,15 @@ class KineticsSubsetDataset(Dataset):
                 continue
                 
             video_files = [f for f in os.listdir(class_path) if f.endswith(('.mp4', '.avi', '.mkv'))]
+            
+            # Auto-split for val if needed
+            if use_auto_split:
+                import random
+                random.seed(self.random_seed + hash(class_name) % 1000)  # Per-class seed
+                random.shuffle(video_files)
+                split_idx = int(len(video_files) * self.train_val_split)
+                video_files = video_files[split_idx:]  # Use last 20% for val
+            
             print(f"  {class_name}: found {len(video_files)} videos")
             
             for video_name in video_files:

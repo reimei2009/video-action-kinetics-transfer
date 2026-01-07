@@ -35,6 +35,10 @@ learning_rate: 0.0001    # 1e-4 cho fine-tuning
 weight_decay: 0.0001     # 1e-4 regularization
 max_epochs: 10           # Số epochs (Kaggle có thời gian giới hạn)
 
+# Train/Val Split
+train_val_split: 0.8     # 80% train, 20% val (nếu không có val/ folder)
+random_seed: 42          # Seed cho reproducibility
+
 # Debug mode
 debug_mode: false        # true = chỉ train với ít samples để test
 max_debug_samples: 50    # Số samples khi debug_mode=true

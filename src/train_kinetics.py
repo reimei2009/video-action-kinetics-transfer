@@ -150,13 +150,18 @@ def main(config_path):
         crop_size=config['crop_size']
     )
     
+    train_val_split = config.get('train_val_split', 0.8)
+    random_seed = config.get('random_seed', 42)
+    
     train_dataset = KineticsSubsetDataset(
         data_root=config['dataset_root'],
         selected_classes=config['selected_classes'],
         clip_duration=config['clip_duration'],
         num_frames=config['num_frames'],
         split='train',
-        transform=transform
+        transform=transform,
+        train_val_split=train_val_split,
+        random_seed=random_seed
     )
     
     val_dataset = KineticsSubsetDataset(
@@ -165,7 +170,9 @@ def main(config_path):
         clip_duration=config['clip_duration'],
         num_frames=config['num_frames'],
         split='val',
-        transform=transform
+        transform=transform,
+        train_val_split=train_val_split,
+        random_seed=random_seed
     )
     
     # Debug mode - limit samples
