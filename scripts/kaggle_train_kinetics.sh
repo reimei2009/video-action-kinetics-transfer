@@ -5,7 +5,7 @@
 set -e
 
 echo "=== Cloning repository ==="
-git clone https://github.com/<YOUR_USERNAME>/video-action-kinetics-transfer.git
+!git clone https://github.com/reimei2009/video-action-kinetics-transfer 
 cd video-action-kinetics-transfer
 
 echo "=== Installing dependencies ==="

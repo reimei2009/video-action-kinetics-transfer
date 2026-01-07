@@ -9,7 +9,7 @@ data_root: "/kaggle/input/kinetics-train-5per/kinetics400_5per/kinetics400_5per"
 selected_classes:
   - "playing guitar"
   - "playing violin"
-  - "cooking"
+  - "cooking on campfire"
   - "playing basketball"
   - "bench pressing"
   - "doing aerobics"
