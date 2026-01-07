@@ -12,6 +12,16 @@ from torch.utils.data import DataLoader
 from torch.cuda.amp import autocast, GradScaler
 from tqdm import tqdm
 from pathlib import Path
+import sys
+import os
+
+# Add src directory to Python path (for Kaggle import)
+script_dir = Path(__file__).parent.absolute()
+project_root = script_dir.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+if str(script_dir) not in sys.path:
+    sys.path.insert(0, str(script_dir))
 
 from datasets.kinetics_subset import KineticsSubsetDataset, get_kinetics_transforms
 from models.x3d_wrapper import build_x3d
