@@ -1,0 +1,36 @@
+# ==========================================
+# FastAPI Deployment Requirements
+# ==========================================
+# Để chạy API server: pip install -r requirements-api.txt
+
+# Core FastAPI framework
+fastapi==0.109.0              # REST API framework (async, high performance)
+uvicorn[standard]==0.27.0     # ASGI server (production ready)
+python-multipart==0.0.6       # Handle file uploads (video files)
+
+# Pydantic for validation
+pydantic==2.5.3               # Data validation (đi kèm FastAPI)
+pydantic-settings==2.1.0      # Environment variable management
+
+# Gradio UI
+gradio==4.13.0                # Web UI cho demo (drag-and-drop video upload)
+
+# Video & Image Processing
+pillow==10.2.0                # Image processing (video thumbnails)
+opencv-python==4.9.0.80       # Video frame extraction (nếu cần)
+
+# Deep Learning (reuse từ requirements.txt)
+torch>=2.0.0                  # PyTorch (đã có trong requirements.txt)
+torchvision>=0.15.0           # TorchVision (đã có)
+pytorchvideo                  # PyTorchVideo (đã có)
+
+# Utilities
+python-dotenv==1.0.0          # Load .env file cho config
+aiofiles==23.2.1              # Async file operations
+
+# Optional: Monitoring & Logging
+loguru==0.7.2                 # Better logging (thay logging builtin)
+
+# Optional: Testing
+httpx==0.26.0                 # Test FastAPI endpoints
+pytest-asyncio==0.23.3        # Test async functions
