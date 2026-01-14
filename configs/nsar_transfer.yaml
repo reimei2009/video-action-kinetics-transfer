@@ -2,7 +2,7 @@
 # Sử dụng trên Kaggle/Colab để transfer từ Kinetics
 
 # Dataset settings
-data_root: '/kaggle/input/nsarpmd/videos'  # Điều chỉnh theo NSARPMD dataset
+data_root: '/kaggle/input/national-sports-action-recognition-dataset/Dataset'  # Điều chỉnh theo NSARPMD dataset
 train_annotation: null  # Optional: path to train.csv
 val_annotation: null    # Optional: path to val.csv
 
@@ -17,7 +17,8 @@ pretrained: false  # Không dùng pretrained, sẽ load từ Kinetics weights
 freeze_backbone: true  # true = chỉ train classifier (transfer learning)
 
 # Kinetics pretrained weights
-kinetics_weights: '/kaggle/input/kinetics-weights/x3d_kinetics_subset_best.pth'
+kinetics_weights: '/kaggle/input/kinetics-subset-weights-v1/x3d_kinetics_subset_best.pth'
+
 
 # Training settings
 batch_size: 4  # Nhỏ hơn vì NSARPMD có ít data
