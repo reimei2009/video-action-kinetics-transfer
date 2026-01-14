@@ -1,5 +1,5 @@
 #!/bin/bash
-# Kaggle Training Script - NSAR Transfer Learning
+# Kaggle Training Script - UCF101 Transfer Learning
 # Run this in Kaggle Notebook cell
 
 set -e
@@ -12,7 +12,7 @@ echo "=== Installing dependencies ==="
 pip install -q -r requirements.txt
 
 echo "=== Starting transfer learning ==="
-python src/train_nsar.py --config configs/ucf101_transfer.yaml
+python src/train_ucf101.py --config configs/ucf101_transfer.yaml
 
 echo "=== Training completed ==="
 echo "Weights saved to: /kaggle/working/weights/x3d_ucf101_best.pth"

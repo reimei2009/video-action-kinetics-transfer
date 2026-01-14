@@ -56,17 +56,28 @@ class UCF101Dataset(Dataset):
     def _load_ucf101(self):
         """
         Load UCF101 dataset
-        Structure: data_root/UCF-101/<class_name>/<video>.avi
-        hoặc: data_root/<class_name>/<video>.avi
+        Structure options:
+        1. data_root/train/<class_name>/<video>.avi (pre-split)
+        2. data_root/UCF-101/<class_name>/<video>.avi (single folder)
+        3. data_root/<class_name>/<video>.avi (direct)
         """
         samples = []
         
-        # Try UCF-101 subfolder first
+        # Check for train/val/test split structure first
+        train_path = os.path.join(self.data_root, 'train')
+        val_path = os.path.join(self.data_root, 'val')
         ucf_path = os.path.join(self.data_root, 'UCF-101')
-        if os.path.exists(ucf_path):
+        
+        if os.path.exists(train_path) and os.path.exists(val_path):
+            # Pre-split structure
+            search_root = train_path if self.split == 'train' else val_path
+            print(f"  Using pre-split structure: {os.path.basename(search_root)}/")
+        elif os.path.exists(ucf_path):
+            # UCF-101 subfolder
             search_root = ucf_path
             print(f"  Found UCF-101 subfolder")
         else:
+            # Direct structure
             search_root = self.data_root
             print(f"  Using root folder")
         
@@ -77,6 +88,10 @@ class UCF101Dataset(Dataset):
         
         class_folders = [d for d in os.listdir(search_root)
                         if os.path.isdir(os.path.join(search_root, d))]
+        
+        if not class_folders:
+            print(f"  ❌ No class folders found in {search_root}")
+            return samples
         
         # Filter selected classes
         if self.selected_classes:
@@ -92,14 +107,20 @@ class UCF101Dataset(Dataset):
                           if f.endswith(('.avi', '.mp4', '.AVI', '.MP4'))]
             
             if video_files:
-                # Split train/val
-                split_idx = int(len(video_files) * self.train_val_split)
-                if self.split == 'train':
-                    split_files = video_files[:split_idx]
+                # For pre-split structure, use all videos (already split)
+                # For single folder structure, do manual split
+                if os.path.exists(train_path) and os.path.exists(val_path):
+                    # Pre-split: use all
+                    split_files = video_files
                 else:
-                    split_files = video_files[split_idx:]
+                    # Manual split
+                    split_idx = int(len(video_files) * self.train_val_split)
+                    if self.split == 'train':
+                        split_files = video_files[:split_idx]
+                    else:
+                        split_files = video_files[split_idx:]
                 
-                print(f"    {class_name}: {len(split_files)} videos ({self.split})")
+                print(f"    {class_name}: {len(split_files)} videos")
                 
                 for video_file in split_files:
                     video_path = os.path.join(class_dir, video_file)
