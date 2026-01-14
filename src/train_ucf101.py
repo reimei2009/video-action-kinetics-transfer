@@ -204,7 +204,6 @@ def main(config_path):
         mode='max',  # maximize validation accuracy
         factor=0.5,  # giảm LR xuống 50%
         patience=3,  # đợi 3 epochs
-        verbose=True,
         min_lr=1e-7
     )
     
