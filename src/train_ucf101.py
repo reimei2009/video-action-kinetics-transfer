@@ -136,7 +136,7 @@ def main(config_path):
         print(f"      !ls -la /kaggle/input/")
         print(f"   2. Check dataset structure:")
         print(f"      !ls -la /kaggle/input/YOUR_DATASET_NAME/")
-        print(f"   3. Update data_root in configs/nsar_transfer.yaml")
+        print(f"   3. Update data_root in configs/ucf101_transfer.yaml")
         return
     
     # Split train/val
@@ -240,7 +240,7 @@ def main(config_path):
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             early_stop_counter = 0
-            save_path = save_dir / 'x3d_nsar_best.pth'
+            save_path = save_dir / 'x3d_ucf101_best.pth'
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -261,7 +261,7 @@ def main(config_path):
     
     print(f"\n✓ Transfer learning completed!")
     print(f"  Best val acc: {best_val_acc:.2f}%")
-    print(f"  Weights saved to: {save_dir / 'x3d_nsar_best.pth'}")
+    print(f"  Weights saved to: {save_dir / 'x3d_ucf101_best.pth'}")
 
 
 if __name__ == '__main__':

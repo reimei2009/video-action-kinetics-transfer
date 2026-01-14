@@ -8,8 +8,10 @@ train_annotation: null  # Optional: path to train.csv
 val_annotation: null    # Optional: path to val.csv
 train_val_split: 0.8    # 80% train, 20% val
 
-# Selected classes (null = use all 101 classes)
-selected_classes: null  # Hoặc list cụ thể: ['Basketball', 'Soccer', 'Tennis', ...]
+
+# selected_classes: null // all classes
+# Test với ít classes để nhanh: ['Basketball', 'Basketball', 'PlayingGuitar', 'PlayingPiano', 'Tennis']
+selected_classes: ['Basketball', 'PlayingGuitar', 'PlayingPiano', 'TennisSwing', 'Archery', 'Biking', 'Diving', 'Drumming', 'GolfSwing', 'HorseRiding']  # 10 classes để test nhanh
 
 # Video settings
 clip_duration: 2.0
@@ -26,10 +28,10 @@ kinetics_weights: '/kaggle/input/kinetics-subset-weights-v1/x3d_kinetics_subset_
 
 
 # Training settings
-batch_size: 8  # Tăng lên vì UCF101 nhiều data hơn
+batch_size: 16  # Tăng batch size để train nhanh hơn
 learning_rate: 0.0001  # Learning rate thấp cho transfer learning
 weight_decay: 0.0001
-epochs: 20  # Giảm epochs vì dataset lớn
+epochs: 5  # Test với 5 epochs
 
 # Scheduler
 scheduler_step: 15
