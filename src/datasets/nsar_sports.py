@@ -115,16 +115,33 @@ class NSARSportsDataset(Dataset):
 
 def get_nsar_transforms(num_frames=16, crop_size=224):
     """Transform cho NSARPMD (giống Kinetics)"""
-    from pytorchvideo.transforms import (
-        UniformTemporalSubsample,
-        ShortSideScale,
-        CenterCrop,
-        Normalize,
-    )
+    import torchvision.transforms as T
     
-    return Compose([
-        UniformTemporalSubsample(num_frames),
-        ShortSideScale(size=256),
-        CenterCrop(crop_size),
-        Normalize(mean=[0.45, 0.45, 0.45], std=[0.225, 0.225, 0.225]),
+    return T.Compose([
+        # (C,T,H,W) -> (T,C,H,W)
+        T.Lambda(lambda x: x.permute(1, 0, 2, 3)),
+        
+        # Temporal subsample
+        T.Lambda(lambda x: temporal_subsample(x, num_frames)),
+        
+        # Spatial transforms
+        T.Lambda(lambda x: torch.stack([
+            T.Compose([
+                T.Resize(256),
+                T.CenterCrop(crop_size),
+                T.Normalize(mean=[0.45, 0.45, 0.45], std=[0.225, 0.225, 0.225])
+            ])(frame) for frame in x
+        ])),
+        
+        # (T,C,H,W) -> (C,T,H,W)
+        T.Lambda(lambda x: x.permute(1, 0, 2, 3)),
     ])
+
+
+def temporal_subsample(video_tensor, num_frames):
+    """Subsample video to num_frames uniformly"""
+    T_in = video_tensor.shape[0]
+    if T_in <= num_frames:
+        return video_tensor
+    indices = torch.linspace(0, T_in - 1, num_frames).long()
+    return video_tensor[indices]
