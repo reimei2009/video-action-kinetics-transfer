@@ -31,23 +31,33 @@ class NSARSportsDataset(Dataset):
         clip_duration=2.0,
         num_frames=16,
         split='train',
-        transform=None
+        transform=None,
+        auto_detect_classes=True
     ):
         self.data_root = data_root
         self.clip_duration = clip_duration
         self.num_frames = num_frames
         self.split = split
         self.transform = transform
+        self.auto_detect_classes = auto_detect_classes
         
-        # NSARPMD có các lớp sports
+        # NSARPMD có các lớp sports (default)
         self.sports_classes = [
             'basketball', 'soccer', 'tennis', 'volleyball',
             'badminton', 'cricket', 'hockey', 'swimming'
         ]
-        self.class_to_idx = {cls: idx for idx, cls in enumerate(self.sports_classes)}
         
-        # Load annotations
+        # Load annotations và auto-detect classes
         self.samples = self._load_annotations(annotation_file)
+        
+        # Update class mapping sau khi load
+        if self.auto_detect_classes and len(self.samples) > 0:
+            detected_classes = sorted(list(set([s['class'] for s in self.samples])))
+            if detected_classes != self.sports_classes:
+                print(f"  Auto-detected classes: {detected_classes}")
+                self.sports_classes = detected_classes
+        
+        self.class_to_idx = {cls: idx for idx, cls in enumerate(self.sports_classes)}
         
     def _load_annotations(self, annotation_file):
         """
@@ -82,30 +92,29 @@ class NSARSportsDataset(Dataset):
                           if os.path.isdir(os.path.join(self.data_root, d))]
                 
                 if subdirs:
-                    # Folder structure
+                    # Folder structure - mỗi subfolder là 1 class
                     print(f"  Found {len(subdirs)} subdirectories")
+                    
+                    # Collect all videos từ mọi subfolder
                     for subdir in subdirs:
-                        subdir_lower = subdir.lower()
-                        class_name = None
+                        class_dir = os.path.join(self.data_root, subdir)
                         
-                        # Match class name
-                        for cls in self.sports_classes:
-                            if cls in subdir_lower or subdir_lower in cls:
-                                class_name = cls
-                                break
+                        # Recursively tìm videos trong subfolder
+                        video_files = []
+                        for root, dirs, files in os.walk(class_dir):
+                            for f in files:
+                                if f.endswith(('.mp4', '.avi', '.mkv', '.MP4', '.AVI')):
+                                    video_files.append(os.path.join(root, f))
                         
-                        if class_name:
-                            class_dir = os.path.join(self.data_root, subdir)
-                            video_files = [f for f in os.listdir(class_dir) 
-                                          if f.endswith(('.mp4', '.avi', '.mkv', '.MP4'))]
-                            
+                        if video_files:
+                            # Sử dụng subfolder name làm class
+                            class_name = subdir.strip().replace(' ', '_').lower()
                             print(f"    {subdir}: {len(video_files)} videos -> class '{class_name}'")
                             
-                            for video_file in video_files:
-                                video_path = os.path.join(class_dir, video_file)
+                            for video_path in video_files:
                                 samples.append({
                                     'path': video_path,
-                                    'label': self.class_to_idx[class_name],
+                                    'label': -1,  # Will be reassigned after auto-detect
                                     'class': class_name
                                 })
                 else:
@@ -134,6 +143,12 @@ class NSARSportsDataset(Dataset):
                 contents = os.listdir(self.data_root)[:10]
                 print(f"    - Contents (first 10): {contents}")
         
+        else:
+            # Reassign labels after auto-detection
+            detected_classes = sorted(list(set([s['class'] for s in samples])))
+            class_to_idx_new = {cls: idx for idx, cls in enumerate(detected_classes)}
+            for sample in samples:
+                sample['label'] = class_to_idx_new[sample['class']]
         return samples
     
     def __len__(self):

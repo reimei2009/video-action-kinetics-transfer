@@ -2,7 +2,7 @@
 # Sử dụng trên Kaggle/Colab để transfer từ Kinetics
 
 # Dataset settings
-data_root: '/kaggle/input/national-sports-action-recognition-dataset/Dataset'  # Điều chỉnh theo NSARPMD dataset
+data_root: '/kaggle/input/national-sports-action-recognition-dataset/Datasett'  # Điều chỉnh theo NSARPMD dataset
 train_annotation: null  # Optional: path to train.csv
 val_annotation: null    # Optional: path to val.csv
 
