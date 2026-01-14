@@ -1,8 +1,8 @@
 """
-Dataset loaders for Kinetics and NSARPMD
+Dataset loaders for Kinetics and UCF101
 """
 
 from .kinetics_subset import KineticsSubsetDataset
-from .nsar_sports import NSARSportsDataset
+from .ucf101_dataset import UCF101Dataset
 
-__all__ = ['KineticsSubsetDataset', 'NSARSportsDataset']
+__all__ = ['KineticsSubsetDataset', 'UCF101Dataset']

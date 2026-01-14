@@ -12,8 +12,8 @@ echo "=== Installing dependencies ==="
 pip install -q -r requirements.txt
 
 echo "=== Starting transfer learning ==="
-python src/train_nsar.py --config configs/nsar_transfer.yaml
+python src/train_nsar.py --config configs/ucf101_transfer.yaml
 
 echo "=== Training completed ==="
-echo "Weights saved to: /kaggle/working/weights/x3d_nsar_best.pth"
+echo "Weights saved to: /kaggle/working/weights/x3d_ucf101_best.pth"
 echo "Download from Kaggle Output tab"

@@ -1,6 +1,7 @@
 """
-Training script cho NSARPMD Sports Dataset
+Training script cho UCF101 Dataset
 Transfer learning từ Kinetics pretrained weights
+UCF-101: 101 action classes
 """
 
 import argparse
@@ -18,7 +19,7 @@ import os
 src_dir = Path(__file__).parent.resolve()
 sys.path.insert(0, str(src_dir))
 
-from datasets.nsar_sports import NSARSportsDataset, get_nsar_transforms
+from datasets.ucf101_dataset import UCF101Dataset, get_ucf101_transforms
 from models.x3d_wrapper import build_x3d
 
 
@@ -85,7 +86,7 @@ def evaluate(model, dataloader, criterion, device):
 
 
 def main(config_path):
-    print(f"\n=== NSAR Transfer Learning Script ===")
+    print(f"\n=== UCF101 Transfer Learning Script ===")
     print(f"Config: {config_path}")
     
     # Load config
@@ -104,26 +105,28 @@ def main(config_path):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"✓ Device: {device}")
     
-    # Load NSAR dataset
-    print(f"\n=== Loading NSAR Dataset ===")
-    data_root = config.get('data_root', '/kaggle/input/nsar-sports/Dataset')
+    # Load UCF101 dataset
+    print(f"\n=== Loading UCF101 Dataset ===")
+    data_root = config.get('data_root', '/kaggle/input/ucf101-action-recognition')
     
-    transform = get_nsar_transforms(
+    transform = get_ucf101_transforms(
         num_frames=config.get('num_frames', 16),
         crop_size=config.get('crop_size', 224)
     )
     
-    full_dataset = NSARSportsDataset(
+    full_dataset = UCF101Dataset(
         data_root=data_root,
         annotation_file=config.get('train_annotation'),
         clip_duration=config.get('clip_duration', 2.0),
         num_frames=config.get('num_frames', 16),
         split='train',
-        transform=transform
+        transform=transform,
+        selected_classes=config.get('selected_classes'),
+        train_val_split=config.get('train_val_split', 0.8)
     )
     
     print(f"✓ Total samples: {len(full_dataset)}")
-    print(f"✓ Classes: {full_dataset.sports_classes}")
+    print(f"✓ Classes ({len(full_dataset.class_names)}): {full_dataset.class_names[:10]}..." if len(full_dataset.class_names) > 10 else f"✓ Classes: {full_dataset.class_names}")
     
     if len(full_dataset) == 0:
         print(f"\n❌ ERROR: No videos found in dataset!")
@@ -159,7 +162,7 @@ def main(config_path):
     
     # Build model
     print(f"\n=== Building Model ===")
-    num_classes = len(full_dataset.sports_classes)
+    num_classes = len(full_dataset.class_names)
     
     model = build_x3d(
         num_classes=num_classes,
@@ -263,11 +266,11 @@ def main(config_path):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Transfer learning to NSAR Sports')
+    parser = argparse.ArgumentParser(description='Transfer learning to UCF101')
     parser.add_argument(
         '--config',
         type=str,
-        default='configs/nsar_transfer.yaml',
+        default='configs/ucf101_transfer.yaml',
         help='Path to config file'
     )
     args = parser.parse_args()

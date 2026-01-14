@@ -1,10 +1,15 @@
-# Config cho NSARPMD Transfer Learning
-# Sử dụng trên Kaggle/Colab để transfer từ Kinetics
+# Config cho UCF101 Transfer Learning
+# Transfer từ Kinetics pretrained weights
+# UCF-101: 101 action recognition classes
 
 # Dataset settings
-data_root: '/kaggle/input/national-sports-action-recognition-dataset/Datasett'  # Điều chỉnh theo NSARPMD dataset
+data_root: '/kaggle/input/ucf101-action-recognition'  # UCF101 dataset path
 train_annotation: null  # Optional: path to train.csv
 val_annotation: null    # Optional: path to val.csv
+train_val_split: 0.8    # 80% train, 20% val
+
+# Selected classes (null = use all 101 classes)
+selected_classes: null  # Hoặc list cụ thể: ['Basketball', 'Soccer', 'Tennis', ...]
 
 # Video settings
 clip_duration: 2.0
@@ -21,10 +26,10 @@ kinetics_weights: '/kaggle/input/kinetics-subset-weights-v1/x3d_kinetics_subset_
 
 
 # Training settings
-batch_size: 4  # Nhỏ hơn vì NSARPMD có ít data
+batch_size: 8  # Tăng lên vì UCF101 nhiều data hơn
 learning_rate: 0.0001  # Learning rate thấp cho transfer learning
 weight_decay: 0.0001
-epochs: 30
+epochs: 20  # Giảm epochs vì dataset lớn
 
 # Scheduler
 scheduler_step: 15
