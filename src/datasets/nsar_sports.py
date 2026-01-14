@@ -92,31 +92,66 @@ class NSARSportsDataset(Dataset):
                           if os.path.isdir(os.path.join(self.data_root, d))]
                 
                 if subdirs:
-                    # Folder structure - mỗi subfolder là 1 class
-                    print(f"  Found {len(subdirs)} subdirectories")
+                    # Folder structure - check level 2 subfolders
+                    print(f"  Found {len(subdirs)} subdirectories at level 1")
                     
-                    # Collect all videos từ mọi subfolder
+                    # First, try to find videos in level 2 subfolders
+                    level2_classes = {}
                     for subdir in subdirs:
-                        class_dir = os.path.join(self.data_root, subdir)
+                        subdir_path = os.path.join(self.data_root, subdir)
+                        level2_subdirs = [d for d in os.listdir(subdir_path)
+                                         if os.path.isdir(os.path.join(subdir_path, d))]
                         
-                        # Recursively tìm videos trong subfolder
-                        video_files = []
-                        for root, dirs, files in os.walk(class_dir):
-                            for f in files:
-                                if f.endswith(('.mp4', '.avi', '.mkv', '.MP4', '.AVI')):
-                                    video_files.append(os.path.join(root, f))
-                        
-                        if video_files:
-                            # Sử dụng subfolder name làm class
-                            class_name = subdir.strip().replace(' ', '_').lower()
-                            print(f"    {subdir}: {len(video_files)} videos -> class '{class_name}'")
-                            
+                        if level2_subdirs:
+                            print(f"  Found {len(level2_subdirs)} level-2 subdirectories in '{subdir}/'")
+                            # Use level 2 folders as classes
+                            for l2_dir in level2_subdirs:
+                                class_name = l2_dir.strip().replace(' ', '_').lower()
+                                class_path = os.path.join(subdir_path, l2_dir)
+                                
+                                # Find videos recursively
+                                video_files = []
+                                for root, dirs, files in os.walk(class_path):
+                                    for f in files:
+                                        if f.endswith(('.mp4', '.avi', '.mkv', '.MP4', '.AVI')):
+                                            video_files.append(os.path.join(root, f))
+                                
+                                if video_files:
+                                    if class_name not in level2_classes:
+                                        level2_classes[class_name] = []
+                                    level2_classes[class_name].extend(video_files)
+                    
+                    # If found level 2 structure, use it
+                    if level2_classes:
+                        print(f"  Using level-2 folder structure ({len(level2_classes)} classes):")
+                        for class_name, video_files in level2_classes.items():
+                            print(f"    {class_name}: {len(video_files)} videos")
                             for video_path in video_files:
                                 samples.append({
                                     'path': video_path,
-                                    'label': -1,  # Will be reassigned after auto-detect
+                                    'label': -1,
                                     'class': class_name
                                 })
+                    else:
+                        # Fallback to level 1
+                        print(f"  Using level-1 folder structure:")
+                        for subdir in subdirs:
+                            class_dir = os.path.join(self.data_root, subdir)
+                            video_files = []
+                            for root, dirs, files in os.walk(class_dir):
+                                for f in files:
+                                    if f.endswith(('.mp4', '.avi', '.mkv', '.MP4', '.AVI')):
+                                        video_files.append(os.path.join(root, f))
+                            
+                            if video_files:
+                                class_name = subdir.strip().replace(' ', '_').lower()
+                                print(f"    {subdir}: {len(video_files)} videos -> class '{class_name}'")
+                                for video_path in video_files:
+                                    samples.append({
+                                        'path': video_path,
+                                        'label': -1,
+                                        'class': class_name
+                                    })
                 else:
                     # Flat structure: <sport>_<id>.mp4
                     print(f"  Flat structure detected")

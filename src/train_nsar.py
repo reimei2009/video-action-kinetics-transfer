@@ -195,15 +195,26 @@ def main(config_path):
         weight_decay=config.get('weight_decay', 0.0001)
     )
     
-    scheduler = optim.lr_scheduler.StepLR(
+    # ReduceLROnPlateau - giảm LR khi loss không giảm
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
-        step_size=config.get('scheduler_step', 15),
-        gamma=config.get('scheduler_gamma', 0.1)
+        mode='max',  # maximize validation accuracy
+        factor=0.5,  # giảm LR xuống 50%
+        patience=3,  # đợi 3 epochs
+        verbose=True,
+        min_lr=1e-7
     )
+    
+    # Early stopping
+    early_stop_patience = 5
+    early_stop_counter = 0
+    best_val_acc = 0.0
+    
+    print(f"\n✓ Early Stopping: patience={early_stop_patience} epochs")
+    print(f"✓ ReduceLROnPlateau: patience=3 epochs, factor=0.5")
     
     # Training loop
     print(f"\n=== Starting Transfer Learning ===")
-    best_val_acc = 0.0
     save_dir = Path(config.get('save_dir', 'weights'))
     save_dir.mkdir(parents=True, exist_ok=True)
     
@@ -215,14 +226,18 @@ def main(config_path):
         )
         val_loss, val_acc = evaluate(model, val_loader, criterion, device)
         
-        scheduler.step()
+        # Update LR based on val_acc
+        scheduler.step(val_acc)
+        current_lr = optimizer.param_groups[0]['lr']
         
         print(f"  Train: loss={train_loss:.4f}, acc={train_acc:.2f}%")
         print(f"  Val:   loss={val_loss:.4f}, acc={val_acc:.2f}%")
+        print(f"  LR:    {current_lr:.2e}")
         
         # Save best model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
+            early_stop_counter = 0
             save_path = save_dir / 'x3d_nsar_best.pth'
             torch.save({
                 'epoch': epoch,
@@ -233,6 +248,14 @@ def main(config_path):
                 'config': config
             }, save_path)
             print(f"  ✓ Saved best model: {save_path} (val_acc={val_acc:.2f}%)")
+        else:
+            early_stop_counter += 1
+            print(f"  Early stop counter: {early_stop_counter}/{early_stop_patience}")
+        
+        # Early stopping
+        if early_stop_counter >= early_stop_patience:
+            print(f"\n⚠ Early stopping triggered! No improvement for {early_stop_patience} epochs.")
+            break
     
     print(f"\n✓ Transfer learning completed!")
     print(f"  Best val acc: {best_val_acc:.2f}%")
