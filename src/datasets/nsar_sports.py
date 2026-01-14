@@ -51,8 +51,11 @@ class NSARSportsDataset(Dataset):
         
     def _load_annotations(self, annotation_file):
         """
-        Load annotations từ file CSV hoặc parse từ tên file
-        Format: <sport_name>_<id>.mp4 hoặc CSV với columns [filename, label]
+        Load annotations từ file CSV hoặc parse từ cấu trúc thư mục
+        Hỗ trợ nhiều formats:
+        - CSV: [filename, label]
+        - Folder structure: data_root/<class_name>/*.mp4
+        - Flat structure: data_root/<class>_<id>.mp4
         """
         samples = []
         
@@ -70,20 +73,66 @@ class NSARSportsDataset(Dataset):
                                 'class': row['label']
                             })
         else:
-            # Parse từ tên file (fallback)
-            for video_name in os.listdir(self.data_root):
-                if not video_name.endswith(('.mp4', '.avi', '.mkv')):
-                    continue
+            # Try folder structure: data_root/<class_name>/*.mp4
+            if os.path.isdir(self.data_root):
+                print(f"  Scanning dataset structure: {self.data_root}")
+                
+                # Check if data_root has subdirectories
+                subdirs = [d for d in os.listdir(self.data_root) 
+                          if os.path.isdir(os.path.join(self.data_root, d))]
+                
+                if subdirs:
+                    # Folder structure
+                    print(f"  Found {len(subdirs)} subdirectories")
+                    for subdir in subdirs:
+                        subdir_lower = subdir.lower()
+                        class_name = None
+                        
+                        # Match class name
+                        for cls in self.sports_classes:
+                            if cls in subdir_lower or subdir_lower in cls:
+                                class_name = cls
+                                break
+                        
+                        if class_name:
+                            class_dir = os.path.join(self.data_root, subdir)
+                            video_files = [f for f in os.listdir(class_dir) 
+                                          if f.endswith(('.mp4', '.avi', '.mkv', '.MP4'))]
+                            
+                            print(f"    {subdir}: {len(video_files)} videos -> class '{class_name}'")
+                            
+                            for video_file in video_files:
+                                video_path = os.path.join(class_dir, video_file)
+                                samples.append({
+                                    'path': video_path,
+                                    'label': self.class_to_idx[class_name],
+                                    'class': class_name
+                                })
+                else:
+                    # Flat structure: <sport>_<id>.mp4
+                    print(f"  Flat structure detected")
+                    video_files = [f for f in os.listdir(self.data_root) 
+                                  if f.endswith(('.mp4', '.avi', '.mkv', '.MP4'))]
+                    print(f"  Found {len(video_files)} video files")
                     
-                # Thử parse: <sport>_<id>.mp4
-                sport_name = video_name.split('_')[0].lower()
-                if sport_name in self.class_to_idx:
-                    video_path = os.path.join(self.data_root, video_name)
-                    samples.append({
-                        'path': video_path,
-                        'label': self.class_to_idx[sport_name],
-                        'class': sport_name
-                    })
+                    for video_name in video_files:
+                        # Thử parse: <sport>_<id>.mp4
+                        sport_name = video_name.split('_')[0].lower()
+                        if sport_name in self.class_to_idx:
+                            video_path = os.path.join(self.data_root, video_name)
+                            samples.append({
+                                'path': video_path,
+                                'label': self.class_to_idx[sport_name],
+                                'class': sport_name
+                            })
+        
+        if len(samples) == 0:
+            print(f"  ⚠ WARNING: No videos found!")
+            print(f"  Please check:")
+            print(f"    - data_root exists: {os.path.exists(self.data_root)}")
+            if os.path.exists(self.data_root):
+                contents = os.listdir(self.data_root)[:10]
+                print(f"    - Contents (first 10): {contents}")
         
         return samples
     

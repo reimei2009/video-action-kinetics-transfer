@@ -125,6 +125,17 @@ def main(config_path):
     print(f"✓ Total samples: {len(full_dataset)}")
     print(f"✓ Classes: {full_dataset.sports_classes}")
     
+    if len(full_dataset) == 0:
+        print(f"\n❌ ERROR: No videos found in dataset!")
+        print(f"   data_root: {data_root}")
+        print(f"\n   Please check the dataset path on Kaggle:")
+        print(f"   1. List available datasets:")
+        print(f"      !ls -la /kaggle/input/")
+        print(f"   2. Check dataset structure:")
+        print(f"      !ls -la /kaggle/input/YOUR_DATASET_NAME/")
+        print(f"   3. Update data_root in configs/nsar_transfer.yaml")
+        return
+    
     # Split train/val
     train_size = int(0.8 * len(full_dataset))
     val_size = len(full_dataset) - train_size
